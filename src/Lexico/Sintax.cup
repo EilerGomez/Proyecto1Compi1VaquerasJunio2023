@@ -1,0 +1,120 @@
+package Lexico;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal ENTERO,TEXTO,FLOTANTE,SI,SINO,PARA,MIENTRAS,DONDE,ENTONCES,FIN,LEER, ESCRIBIR,A,
+Espacio,Asignacion,Comparacion,Suma,Resta,Multiplicacion,Division,Cierre,Coma, Punto,A_Parentesis,C_Parentesis, MenorIgual,MayorIgual,Comillas,Menor,Mayor,
+Identificador,Numero, ERROR;
+non terminal INICIO, DECLARACION, ESCRITURA, LECTURA, FOR,SENTENCIA_FOR,VALORES, IF, IF_ELSE, SENTENCIAS_IF_ELSE, LOQUE_SEA, OPERADORES;
+
+start with INICIO;
+
+INICIO ::= 
+          INICIO DECLARACION|
+          DECLARACION|
+          INICIO ESCRITURA| 
+          ESCRITURA|
+          INICIO LECTURA|
+          LECTURA|
+          INICIO FOR|
+          FOR|
+          INICIO IF|
+          IF|
+          INICIO IF_ELSE|
+          IF_ELSE
+;
+
+DECLARACION ::= 
+          Identificador Asignacion Identificador Cierre|
+          Identificador Asignacion Numero Cierre|
+          TEXTO Identificador Asignacion Comillas Comillas Cierre|
+          TEXTO Identificador Asignacion Comillas LOQUE_SEA Comillas Cierre|
+          Identificador Asignacion Comillas Comillas Cierre|
+          Identificador Asignacion Comillas LOQUE_SEA Comillas Cierre|
+          FLOTANTE Identificador Asignacion Numero Cierre|
+          FLOTANTE Identificador Asignacion Numero Punto Numero Cierre|
+          Identificador Asignacion Numero Punto Numero Cierre|
+
+          ENTERO Identificador Cierre|
+          TEXTO Identificador Cierre|
+          FLOTANTE Identificador Cierre|
+
+          ENTERO Identificador Asignacion VALORES OPERADORES VALORES Cierre|
+          ENTERO Identificador Asignacion VALORES Cierre|
+          Identificador Asignacion VALORES OPERADORES VALORES Cierre|
+          FLOTANTE Identificador Asignacion VALORES OPERADORES VALORES Cierre
+
+;
+OPERADORES ::=
+            Suma|Resta|Division|Multiplicacion
+;
+
+
+ESCRITURA ::=
+            ESCRIBIR A_Parentesis Comillas LOQUE_SEA Comillas C_Parentesis Cierre|
+            ESCRIBIR A_Parentesis Identificador C_Parentesis Cierre
+
+;   
+
+LECTURA ::=
+          LEER A_Parentesis Identificador C_Parentesis Cierre
+;
+
+FOR ::=
+    PARA A_Parentesis VALORES A VALORES C_Parentesis SENTENCIAS_IF_ELSE FIN
+;
+
+SENTENCIA_FOR ::=
+        VALORES Comparacion VALORES| 
+        VALORES MenorIgual VALORES|
+        VALORES MayorIgual VALORES|
+        VALORES Mayor VALORES|
+        VALORES Menor VALORES
+;
+
+VALORES ::=
+           Numero|
+           Identificador|
+           Numero Punto Numero
+;
+
+IF ::=
+       SI A_Parentesis SENTENCIA_FOR C_Parentesis SENTENCIAS_IF_ELSE FIN
+;
+
+IF_ELSE ::=
+       SI A_Parentesis SENTENCIA_FOR C_Parentesis SENTENCIAS_IF_ELSE SINO SENTENCIAS_IF_ELSE FIN
+;
+SENTENCIAS_IF_ELSE ::=
+    ESCRITURA|
+    DECLARACION|
+    LECTURA|
+    SENTENCIAS_IF_ELSE ESCRITURA|
+    SENTENCIAS_IF_ELSE DECLARACION|
+    SENTENCIAS_IF_ELSE LECTURA
+    
+;
+LOQUE_SEA ::= 
+    ENTERO|TEXTO|FLOTANTE|SI|SINO|PARA|MIENTRAS|DONDE|ENTONCES|FIN|LEER| ESCRIBIR|
+    Espacio|Asignacion|Comparacion|Suma|Resta|Multiplicacion|Division|Cierre|
+    Coma| Punto|A_Parentesis|C_Parentesis| MenorIgual|MayorIgual|
+    Identificador|Numero| ERROR|
+
+    LOQUE_SEA ENTERO|LOQUE_SEA TEXTO|LOQUE_SEA FLOTANTE|LOQUE_SEA SI|LOQUE_SEA SINO|LOQUE_SEA PARA|LOQUE_SEA MIENTRAS|LOQUE_SEA DONDE|LOQUE_SEA ENTONCES|LOQUE_SEA FIN|LOQUE_SEA LEER| LOQUE_SEA ESCRIBIR|
+    LOQUE_SEA Espacio|LOQUE_SEA Asignacion|LOQUE_SEA Comparacion|LOQUE_SEA Suma|LOQUE_SEA Resta|LOQUE_SEA Multiplicacion|LOQUE_SEA Division|LOQUE_SEA Cierre|
+    LOQUE_SEA Coma| LOQUE_SEA Punto|LOQUE_SEA A_Parentesis|LOQUE_SEA C_Parentesis|LOQUE_SEA MenorIgual|LOQUE_SEA MayorIgual|
+    LOQUE_SEA Identificador|LOQUE_SEA Numero|LOQUE_SEA ERROR
+;
