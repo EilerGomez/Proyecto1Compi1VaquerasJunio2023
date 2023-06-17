@@ -43,5 +43,9 @@ public enum Tokens {
     LEER,//32
     Mayor,//33
     Menor,//34
-    A;//35
+    A,//35
+    DosPuntos, //36
+    INTERRUPTOR, //37
+    CASO, //38
+    DEFECTO //39
 }

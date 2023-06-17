@@ -34,6 +34,9 @@ DONDE {return new Symbol(sym.DONDE, yychar, yyline,yytext());}
 ENTONCES {return new Symbol(sym.ENTONCES, yychar, yyline,yytext());}
 FIN {return new Symbol(sym.FIN, yychar, yyline,yytext());}
 A {return new Symbol(sym.A, yychar, yyline,yytext());}
+INTERRUPTOR {return new Symbol(sym.INTERRUPTOR, yychar, yyline,yytext());}
+CASO {return new Symbol(sym.CASO, yychar, yyline,yytext());}
+DEFECTO {return new Symbol(sym.DEFECTO, yychar, yyline,yytext());}
 {saltos} {/*Ignore*/}
 {espacio} {/*Ignore*/}
 "//".* {/*Ignore*/}
@@ -53,6 +56,7 @@ A {return new Symbol(sym.A, yychar, yyline,yytext());}
 "<" {return new Symbol(sym.Menor, yychar, yyline,yytext());}
 ">" {return new Symbol(sym.Mayor, yychar, yyline,yytext());}
 "\"" {return new Symbol(sym.Comillas, yychar, yyline,yytext());}
+":" {return new Symbol(sym.DosPuntos, yychar, yyline,yytext());}
 {L}({L}|{D})* {return new Symbol(sym.Identificador, yychar, yyline,yytext());}
 ("(-"{D}+")")|{D}+ {return new Symbol(sym.Numero, yychar, yyline,yytext());}
  . {return new Symbol(sym.ERROR, yychar, yyline,yytext());}
