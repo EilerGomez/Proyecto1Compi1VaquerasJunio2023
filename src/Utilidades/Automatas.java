@@ -15,7 +15,7 @@ public class Automatas {
     int[][] tabla;
 
     public Automatas() {
-        this.tabla = new int[120][120];
+        this.tabla = new int[170][170];
         //ASIGNACION PARA ENTEROS
         tabla[0][0] = 0;
         tabla[0][1] = 1;//[ESTADO INICIAL][ENTERO] -> ESTADO1
@@ -216,7 +216,7 @@ public class Automatas {
         tabla[108][18] = 110;//[ESTADO 108] [CIERRE] -> ESTADO 110
         tabla[105][26] = 101;//[ESTADO 105] [ID] -> ESTADO 101
         tabla[110][26] = 101;//[ESTADO 110] [ID] -> ESTADO 101
-        
+
         //PARA LEER:
         tabla[0][32] = 114;//[ESTADO 0] [LEER] -> ESTADO 114
         tabla[114][22] = 115;//[ESTADO 114] [A_Parentesis] -> ESTADO 115
@@ -224,6 +224,42 @@ public class Automatas {
         tabla[116][23] = 117;//[ESTADO 116] [C_Parentesis] -> ESTADO 117
         tabla[117][18] = 118;//[ESTADO 117] [CIERRE] -> ESTADO 118
 
+        //PARA EL CICLO WHILE:
+        tabla[0][7] = 119;//[ESTADO 0] [mientras] -> ESTADO 119
+        tabla[119][22] = 120;//[ESTADO 119] [A_Parentesis] -> ESTADO 120
+        tabla[120][26] = 121;//[ESTADO 120] [Identificador] -> ESTADO 121
+        tabla[121][13] = 122;//[ESTADO 121] [COMPARACION] -> ESTADO 122
+        tabla[121][24] = 122;//[ESTADO 121] [MENORiGUAL] -> ESTADO 122
+        tabla[121][25] = 122;//[ESTADO 121] [MAYORIGUAL] -> ESTADO 122
+        tabla[121][33] = 122;//[ESTADO 121] [MAYOR] -> ESTADO 122
+        tabla[121][34] = 122;//[ESTADO 121] [MENOR] -> ESTADO 122
+        tabla[120][27] = 156;//[ESTADO 120] [NUMERO] -> ESTADO 156
+        tabla[156][13] = 122;//[ESTADO 156] [COMPARACION] -> ESTADO 122
+        tabla[156][24] = 122;//[ESTADO 156] [MENORiGUAL] -> ESTADO 122
+        tabla[156][25] = 122;//[ESTADO 156] [MAYORIGUAL] -> ESTADO 122
+        tabla[156][33] = 122;//[ESTADO 156] [MAYOR] -> ESTADO 122
+        tabla[156][34] = 122;//[ESTADO 156] [MENOR] -> ESTADO 122
+        tabla[122][26] = 123;//[ESTADO 122] [ID] -> ESTADO 123
+        tabla[122][27] = 124;//[ESTADO 122] [NUMERO] -> ESTADO 124
+        tabla[124][23] = 125;//[ESTADO 124] [cIERRE PARENTESIS] -> ESTADO 125
+        tabla[123][23] = 125;//[ESTADO 123] [cIERRE PARENTESIS] -> ESTADO 125
+
+        //PARA LA SENTENCIA SWITCH
+        tabla[0][37] = 144;//[ESTADO 0] [INTERRUPTOR] -> ESTADO 144
+        tabla[144][22] = 145;//[ESTADO 144] [A_PARENTESIS] -> ESTADO 145
+        tabla[145][26] = 146;//[ESTADO 145] [IDENTIFICADOR] -> ESTADO 146
+        tabla[146][23] = 147;//[ESTADO 146] [C_PARENTESIS] -> ESTADO 147
+        tabla[147][38] = 148;//[ESTADO 147] [CASO] -> ESTADO 148
+        tabla[148][27] = 149;//[ESTADO 148] [NUMERO] -> ESTADO 149
+        tabla[149][36] = 152;//[ESTADO 149] [DOS_PUNTOS] -> ESTADO 152 // REVISAR SI CUMPLE CON LA FUNCION O NO
+        tabla[148][21] = 150;//[ESTADO 148] [COMILLAS] -> ESTADO 150
+        tabla[150][21] = 151;//[ESTADO 150] [COMILLAS] -> ESTADO 151
+        tabla[151][36] = 152;//[ESTADO 151] [DOS_PUNTOS] -> ESTADO 152
+        tabla[157][38] = 148;//[ESTADO 157] [caso] -> ESTADO 148
+        tabla[157][39] = 153;//[ESTADO 157] [DEFECTO] -> ESTADO 153
+        tabla[153][10] = 0;//[ESTADO 153] [fin] -> ESTADO 0 ESTADO INICIAL
+        tabla[153][38] = 154;//[ESTADO 153] [caso] -> ESTADO 0 ESTADO INICIAL
+        tabla[153][39] = 154;//[ESTADO 153] [caso] -> ESTADO 0 ESTADO INICIAL
     }
 
     public int verificarSiguienteEstado(int estadoActual, Tokens token) {
@@ -347,6 +383,18 @@ public class Automatas {
                 break;
             case A://35
                 num = 35;
+                break;
+            case DosPuntos: //36
+                num = 36;
+                break;
+            case INTERRUPTOR: //37
+                num = 37;
+                break;
+            case CASO: //38
+                num = 38;
+                break;
+            case DEFECTO://39
+                num = 39;
                 break;
         }
         return num;

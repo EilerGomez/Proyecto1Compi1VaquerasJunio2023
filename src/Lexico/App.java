@@ -42,6 +42,16 @@ public class App extends javax.swing.JFrame {
     int forVar2 = 0;
     String ValorVariableLeer = "null";
     ArrayList<String> variablesLeer;
+    
+    String var1ForWhile="";
+    String var2ForWhile="";
+    String textoForWhile="";
+    
+    //PARA EL SWITCH
+    Variables variableSwitch=new Variables();
+    String textoComparando="";
+    String textoForSwitch="";
+    
 
     public App() {
         initComponents();
@@ -237,6 +247,7 @@ public class App extends javax.swing.JFrame {
         // TODO add your handling code here:
         //analizarLexico();
         console.setText("");
+        compilacion="";
         //ejecutor();
         variablesLeer = new ArrayList<>();
         variables = new ArrayList<>();
@@ -459,7 +470,8 @@ public class App extends javax.swing.JFrame {
 
     private void evaluarAsignaciones(Tokens tokens, Lexer lexer, int linea, int columna) {
         if (estadoActual != 10 && estadoActual != 27 && estadoActual != 37 && estadoActual != 50 && estadoActual != 94 && estadoActual != 100
-                && estadoActual != 107 && estadoActual != 112) {
+                && estadoActual != 107 && estadoActual != 112 && estadoActual!=125 && estadoActual!=143 && estadoActual!=150 && estadoActual!=152
+                && estadoActual!=153&&estadoActual!=154) {
             if (automata.valorToken(tokens) != 11) {
                 evaluarEstados(automata.verificarSiguienteEstado(estadoActual, tokens), tokens, lexer, linea, columna);
             }
@@ -478,7 +490,44 @@ public class App extends javax.swing.JFrame {
             if (automata.valorToken(tokens) == 10) {
                 evaluarEstados(automata.verificarSiguienteEstado(estadoActual, tokens), tokens, lexer, linea, columna);
             }
-        } else {
+        }else if(estadoActual==125){
+            
+            if(funcionDelWhile(linea, columna)){
+                funcionOperacionesDelWhile(tokens, lexer, linea, columna);
+            }else{
+                if(textoForWhile.equalsIgnoreCase("")){
+                     estadoActual=143;
+                }else{
+                    estadoActual=0;
+                }
+               
+            }
+        }else if(estadoActual==143){
+            if (automata.valorToken(tokens) == 10) {
+                estadoActual=0;
+            }
+        }else if(estadoActual==150){
+            if(automata.valorToken(tokens)!=21){
+                textoComparando+=lexer.lexeme;
+            }else{
+               evaluarEstados(automata.verificarSiguienteEstado(estadoActual, tokens), tokens, lexer, linea, columna);
+            }
+        }else if(estadoActual==152){
+             System.out.println("comparando " +textoComparando + " con: " + variableSwitch.getValor());
+            if(textoComparando.equals(variableSwitch.getValor())){               
+                estadoActual=153;
+            }else{
+                estadoActual=157;
+            }
+            textoComparando="";
+        }else if(estadoActual==153){
+            funcionOperacionesDelSwitch(tokens, lexer, linea, columna);
+        }else if(estadoActual==154){
+            if(automata.valorToken(tokens)==10){
+                estadoActual=0;
+            }
+        }
+        else {
             if (automata.valorToken(tokens) != 21) {
                 valor += lexer.lexeme;
             } else {
@@ -486,6 +535,151 @@ public class App extends javax.swing.JFrame {
             }
 
         }
+    }
+    
+    private void funcionOperacionesDelSwitch(Tokens token, Lexer lexer, int linea, int columna){
+        if(automata.valorToken(token)!=38&&automata.valorToken(token)!=10&&automata.valorToken(token)!=39){
+            textoForSwitch+=lexer.lexeme;
+            System.out.println(textoForSwitch);
+        }else{
+            System.out.println("Ya encontro la palabra " + lexer.lexeme);
+            Lexer lexerSwitch = new Lexer(new StringReader(textoForSwitch));
+            estadoActual=0;
+            while(true){
+                try {
+                    Tokens tokenSwitch=lexerSwitch.yylex();
+                    if(tokenSwitch==null){
+                        if (errores.size() == 0) {
+                            console.setForeground(Color.white);
+                            console.setText(console.getText()+compilacion);
+                            //textoForWhile="";
+                            textoForSwitch="";
+                            textoComparando="";
+                            System.out.println(compilacion);
+                            estadoActual=153;
+                            estadoActual=automata.verificarSiguienteEstado(estadoActual, token);
+                        } else {
+                            console.setText("");
+                            for (String error : errores) {
+                                console.setForeground(Color.red);
+                                console.setText(console.getText() + error + "\n");
+                            }
+                        }
+                        
+                        return;
+                    }
+                    columna += lexerSwitch.lexeme.length();
+                    switch (tokenSwitch) {
+                        case Linea:
+                            linea++;
+                            columna = 0;
+                            break;
+                        default:
+                            //resultado+= lexer.lexeme + "            Es un: " + tokens + ", en la columna: " + columna + " linea: " + linea + "\n"; 
+                            evaluarAsignaciones(tokenSwitch, lexerSwitch, linea, columna);
+                            //evaluarEscritura(tokens,lexer,linea,columna);
+                            System.out.println(estadoActual);
+
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+           } 
+            
+        }
+    }
+    public void funcionOperacionesDelWhile(Tokens token, Lexer lexer, int linea, int columna){
+        if(automata.valorToken(token)!=10){
+            textoForWhile+=lexer.lexeme;
+            System.out.println(textoForWhile);
+        }else{
+            System.out.println("Ya encontro la palabra fin");
+            Lexer lexerWhile = new Lexer(new StringReader(textoForWhile));
+            estadoActual=0;
+           while(true){
+                try {
+                    Tokens tokenWhile=lexerWhile.yylex();
+                    if(tokenWhile==null){
+                        if (errores.size() == 0) {
+                            console.setForeground(Color.white);
+                            console.setText(console.getText()+compilacion);
+                            //textoForWhile="";
+                            System.out.println(compilacion);
+                        } else {
+                            console.setText("");
+                            for (String error : errores) {
+                                console.setForeground(Color.red);
+                                console.setText(console.getText() + error + "\n");
+                            }
+
+                        }
+                        if(funcionDelWhile(linea, columna)){
+                            funcionOperacionesDelWhile(token,lexer, linea, columna);
+                        }else{
+                            textoForWhile="";
+                        }
+                        return;
+                    }
+                    columna += lexerWhile.lexeme.length();
+                switch (tokenWhile) {
+                    case Linea:
+                        linea++;
+                        columna = 0;
+                        break;
+                    default:
+                        //resultado+= lexer.lexeme + "            Es un: " + tokens + ", en la columna: " + columna + " linea: " + linea + "\n"; 
+                        evaluarAsignaciones(tokenWhile, lexerWhile, linea, columna);
+                        //evaluarEscritura(tokens,lexer,linea,columna);
+                        System.out.println(estadoActual);
+
+                }
+                } catch (IOException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+           }           
+        }
+        estadoActual=125;
+    }
+    
+    private boolean funcionDelWhile( int linea, int columna){
+        int var1While=0;
+        int var2While=0;
+        try {
+            var1While=  Integer.parseInt(var1ForWhile);
+        } catch (NumberFormatException e) {
+            boolean exist=false;
+            for (Variables variable : variables) {
+                if(variable.getNombre().equals(var1ForWhile)){
+                    exist=true;
+                    if(variable.getTipo().equals("ENTERO")){
+                        var1While=Integer.parseInt(variable.getValor());
+                    }else{
+                        errores.add("La variable: "+var1ForWhile +" No es de tipo ENTERO, Linea: " + linea + ", Columna: " + columna );
+                    }
+                }
+            }
+            if(exist==false){errores.add("La variable: "+var1ForWhile +" No existe, Linea: " + linea + ", Columna: " + columna );estadoActual=0;}
+        }
+        try {
+            var2While=  Integer.parseInt(var2ForWhile);
+        } catch (NumberFormatException e) {
+            boolean exist=false;
+            for (Variables variable : variables) {
+                //System.out.println("Buscando el valor de la variable: " +var2ForWhile );
+                if(variable.getNombre().equals(var2ForWhile)){
+                    exist=true;
+                    if(variable.getTipo().equals("ENTERO")){
+                        var2While=Integer.parseInt(variable.getValor());
+                    }else{
+                        errores.add("La variable: "+var2ForWhile +" No es de tipo ENTERO, Linea: " + linea + ", Columna: " + columna );
+                    }
+                }
+            }
+            if(exist==false){errores.add("La variable: "+var2ForWhile +" No existe, Linea: " + linea + ", Columna: " + columna );estadoActual=0;}
+        }
+        
+        return comparar(comparacion,var1While,var2While);
+        
     }
 
     private void evaluarEscritura(Tokens tokens, Lexer lexer, int linea, int columna) {
@@ -887,7 +1081,40 @@ public class App extends javax.swing.JFrame {
 
             estadoActual = 0;
 
-        } else {
+        }//DE AQUI HACIA ABAJO EMPIEZA LO DEL CICLO WHILE 
+        else if(estado==156||estado==121){
+            var1ForWhile=lexer.lexeme;
+            estadoActual=estado;
+        }else if(estado==124||estado==123){
+            var2ForWhile=lexer.lexeme;
+            estadoActual=estado;
+            
+        }else if(estado==122){
+            comparacion=lexer.lexeme;
+            estadoActual=estado;
+        }//DE AQUI HACIA ABAJO EMPIEZA LO DE LA SENTENCIA SWITCH
+        else if(estado==146){
+            boolean exist=false;
+            for (Variables variable : variables) {
+                if(variable.getNombre().equals(lexer.lexeme)){
+                    exist=true;
+                    variableSwitch=variable;
+                }
+            }
+            if(exist==false){errores.add("La variable: " + lexer.lexeme + ", No existe, Linea: " + linea + ", Columna: " + columna);}
+            estadoActual=estado;
+        }else if(estado==149){
+            if(variableSwitch.getTipo().equals("ENTERO")){
+                textoComparando=lexer.lexeme;
+            }else{errores.add("La variable: " + variableSwitch.getNombre() + " no es de tipo ENTERO, Linea: " +linea + ", Columna: " + columna);}
+            estadoActual=estado;
+        }else if(estado==151){
+            if(!variableSwitch.getTipo().equals("TEXTO")){
+                errores.add("La variable: " + variableSwitch.getNombre() + " no es de tipo ENTERO, Linea: " +linea + ", Columna: " + columna);
+            }
+            estadoActual=estado;
+        }
+        else {
             estadoActual = estado;
         }
 

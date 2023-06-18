@@ -51,3 +51,57 @@ SI(DOS>1)
    ESCRIBIR(DOS);
    ESCRIBIR("ES MAYOR QUE 1");
 FIN
+
+
+/*********************************************************************************************************************************************************************/
+//EJEMPLO DE TODO LO QUE LLEVA POR EL MOMENTO:
+
+ENTERO UNO2 =78;
+TEXTO VAR="juana";
+ENTERO UNO =1;
+ENTERO DOS =7;
+TEXTO LINEA = " ";
+
+MIENTRAS(UNO<DOS)
+   ESCRIBIR(UNO);
+   UNO=UNO+1;
+FIN
+
+ESCRIBIR("ESTA ES UNA PRUEBA DEL WHILE");
+
+SI(UNO==DOS)
+    ESCRIBIR("la variable uno es igual que la variable dos");
+     ESCRIBIR(UNO);
+SINO 
+       ESCRIBIR("la variable uno NO es igual que la variable dos");
+        ESCRIBIR(UNO);
+FIN
+
+SI(UNO>5)
+  ESCRIBIR("la variable uno es mayor que 5");
+FIN
+
+ESCRIBIR(LINEA);
+PARA(1 A 6)
+   ESCRIBIR("HOLA MUNDO EILER");
+FIN
+
+INTERRUPTOR(UNO2)
+       CASO 3:
+              ESCRIBIR("EL Numero es tres");
+       CASO 78:
+             ESCRIBIR("El numero es 78");
+       DEFECTO:
+            ESCRIBIR("No hay coincidencias");
+FIN
+
+INTERRUPTOR(VAR)
+       CASO "rosa":
+              ESCRIBIR("EL Nombre es rosa");
+       CASO "elsa":
+             ESCRIBIR("El nombre es elsa");
+       CASO "juana":
+                  ESCRIBIR("El nombre es juana");
+       DEFECTO:
+            ESCRIBIR("No hay coincidencias");
+FIN
