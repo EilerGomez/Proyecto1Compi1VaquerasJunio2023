@@ -1,0 +1,91 @@
+TEXTO LINEA=" " ;
+TEXTO NOVIOS ;
+NOVIOS = "no";
+ENTERO VAR =2;
+ENTERO DOS = 1;
+INTERRUPTOR(NOVIOS){
+    CASO "si": 
+        ESCRIBIR("HOLA AMORS XD ");
+
+        SI(VAR==2){
+                ESCRIBIR("var dos");
+                PARA(1 A 3){
+                       ESCRIBIR("HOLA AMORS XDD");
+                }
+        }SINO{
+            ESCRIBIR("HAY AMIGO X10000000");
+            PARA(1 A 3){
+                  ESCRIBIR("EILER PARA");
+            }
+        }
+    CASO "no": 
+            PARA(1 A 3){
+                ESCRIBIR("HAY AMIGO");
+            }
+    DEFECTO:
+            ESCRIBIR("NADA");
+}
+
+ESCRIBIR("FUERA DEL SWITCH");
+
+ESCRIBIR(LINEA);
+PARA(1 A 2){
+    ESCRIBIR("ESTAMOS EN PARA");
+    SI(VAR==2){
+            ESCRIBIR("ESTAMOS EN si");
+            INTERRUPTOR(VAR){
+                   CASO 2:
+                            ESCRIBIR("ESTAMOS EN switch");
+                            ESCRIBIR("caso ES 2");
+                   DEFECTO: 
+                            ESCRIBIR("NO HAY COINCIDENCIAS");
+           }
+    }
+}
+
+ESCRIBIR(LINEA);
+SI(1==1){
+
+    ESCRIBIR("ES VERDADERO");
+    PARA(1 A 3){
+        ESCRIBIR("YES");
+    }
+
+}SINO{
+
+  ESCRIBIR("ES FALSO");
+
+}
+
+
+PARA(1 A 5){
+
+    ESCRIBIR("HOLA MUNDO");
+    SI(1==2){
+
+      ESCRIBIR("ES VERDADERO");
+
+    }SINO{
+
+       ESCRIBIR("ES FALSO");
+
+    }
+
+}
+
+//USANDO EL WHILE CON SENTENCIA SI Y PARA
+ESCRIBIR(LINEA);
+MIENTRAS(DOS<=6){   
+    
+      ESCRIBIR(DOS);
+      SI(DOS>4){
+         ESCRIBIR("Este numero es mayor que CUATRO");
+         PARA(1 A 3){
+             ESCRIBIR("Estamos en el ciclo para donde el numero es mayor que cuatro");
+         }
+      }SINO{
+         ESCRIBIR("Este numero NO es mayor que CUATRO");
+      }
+      DOS=DOS+1;      
+  
+}

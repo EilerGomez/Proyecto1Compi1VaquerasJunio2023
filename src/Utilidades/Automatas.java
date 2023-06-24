@@ -115,7 +115,8 @@ public class Automatas {
         tabla[67][35] = 45;//[ESTADO 67] [A] -> ESTADO 45
         tabla[45][26] = 68;//[ESTADO 45] [ID] -> ESTADO 68
         tabla[68][23] = 47;//[ESTADO 68] [CIERRE_PARENTESIS] -> ESTADO 47
-
+        tabla[47][40] = 48;//[ESTADO 47] [A_Llaves] -> ESTADO 48
+        
         //ESCRIBIR EN FOR
         tabla[47][31] = 48;//[ESTADO 47] [ESCRIBIR] -> ESTADO 48
         tabla[48][22] = 49;//[ESTADO 48] [A_paretnesis] -> ESTADO 49
@@ -169,10 +170,12 @@ public class Automatas {
         tabla[85][23] = 87;//[ESTADO 85] [C_Parentesis] -> ESTADO 87
         tabla[84][26] = 86;//[ESTADO 84] [ID] -> ESTADO 86
         tabla[86][23] = 87;//[ESTADO 86] [C_Parentesis] -> ESTADO 77
+        tabla[87][40] = 88;//[ESTADO 87] [C_Llaves] -> ESTADO 88 EN EL ESTADO 88 GUARDAR EL TEXTO HASTA QUE VENGA OTRO CIERRE DE LLAVES
         //EN EL ESTADO 87 EVALUAR SI CUMPLE LA CONDICION O NO, DE MODO QUE SI SI MANDARLO AL ESTADO 88 SINO MANDARLO AL ESTADO 89
-        tabla[88][10] = 90;//[ESTADO 88] [FIN] -> ESTADO 90 --> ESTADO INICIAL
-        tabla[88][5] = 91;//[ESTADO 88] [SINO] -> ESTADO 91
-        tabla[91][31] = 92;//[ESTADO 91] [ESCRIBIR] -> ESTADO 92
+        //tabla[88][10] = 90;//[ESTADO 88] [FIN] -> ESTADO 90 --> ESTADO INICIAL
+        tabla[0][5] = 89;//[ESTADO 0] [SINO] -> ESTADO 89
+        tabla[89][40] = 90;//[ESTADO 89] [A_Llaves] -> ESTADO 90 EN ESTE ESTADO GUARDA EL TEXTO HASTA QEU ENCUENTRE CIERRE DE LLAVES
+        
         tabla[92][22] = 93;//[ESTADO 92] [A_Parentesis] -> ESTADO 93
         tabla[93][26] = 99;//[ESTADO 93] [ID] -> ESTADO 99
         tabla[99][23] = 96;//[ESTADO 99] [C_Parentesis] -> ESTADO 96
@@ -243,13 +246,14 @@ public class Automatas {
         tabla[122][27] = 124;//[ESTADO 122] [NUMERO] -> ESTADO 124
         tabla[124][23] = 125;//[ESTADO 124] [cIERRE PARENTESIS] -> ESTADO 125
         tabla[123][23] = 125;//[ESTADO 123] [cIERRE PARENTESIS] -> ESTADO 125
+        tabla[125][40] = 134;//[ESTADO 125] [A_Llaves] -> ESTADO 134
 
         //PARA LA SENTENCIA SWITCH
         tabla[0][37] = 144;//[ESTADO 0] [INTERRUPTOR] -> ESTADO 144
         tabla[144][22] = 145;//[ESTADO 144] [A_PARENTESIS] -> ESTADO 145
         tabla[145][26] = 146;//[ESTADO 145] [IDENTIFICADOR] -> ESTADO 146
         tabla[146][23] = 147;//[ESTADO 146] [C_PARENTESIS] -> ESTADO 147
-        tabla[147][38] = 148;//[ESTADO 147] [CASO] -> ESTADO 148
+        tabla[155][38] = 148;//[ESTADO 155] [CASO] -> ESTADO 148
         tabla[148][27] = 149;//[ESTADO 148] [NUMERO] -> ESTADO 149
         tabla[149][36] = 152;//[ESTADO 149] [DOS_PUNTOS] -> ESTADO 152 // REVISAR SI CUMPLE CON LA FUNCION O NO
         tabla[148][21] = 150;//[ESTADO 148] [COMILLAS] -> ESTADO 150
@@ -257,9 +261,10 @@ public class Automatas {
         tabla[151][36] = 152;//[ESTADO 151] [DOS_PUNTOS] -> ESTADO 152
         tabla[157][38] = 148;//[ESTADO 157] [caso] -> ESTADO 148
         tabla[157][39] = 153;//[ESTADO 157] [DEFECTO] -> ESTADO 153
-        tabla[153][10] = 0;//[ESTADO 153] [fin] -> ESTADO 0 ESTADO INICIAL
+        tabla[153][41] = 0;//[ESTADO 153] [fin] -> ESTADO 0 ESTADO INICIAL
         tabla[153][38] = 154;//[ESTADO 153] [caso] -> ESTADO 0 ESTADO INICIAL
-        tabla[153][39] = 154;//[ESTADO 153] [caso] -> ESTADO 0 ESTADO INICIAL
+        tabla[153][39] = 154;//[ESTADO 153] [DEFECTO] -> ESTADO 0 ESTADO INICIAL
+        tabla[147][40] = 155;//[ESTADO 147] [A_Llaves] -> ESTADO 155
     }
 
     public int verificarSiguienteEstado(int estadoActual, Tokens token) {
@@ -395,6 +400,12 @@ public class Automatas {
                 break;
             case DEFECTO://39
                 num = 39;
+                break;
+            case A_Llaves://40
+                num=40;
+                break;
+            case C_Llaves://41
+                num=41;
                 break;
         }
         return num;

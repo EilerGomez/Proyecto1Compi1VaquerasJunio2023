@@ -47,5 +47,7 @@ public enum Tokens {
     DosPuntos, //36
     INTERRUPTOR, //37
     CASO, //38
-    DEFECTO //39
+    DEFECTO, //39
+    A_Llaves,//40
+    C_Llaves//41
 }

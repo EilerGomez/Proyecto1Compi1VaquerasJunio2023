@@ -57,6 +57,8 @@ DEFECTO {return new Symbol(sym.DEFECTO, yychar, yyline,yytext());}
 ">" {return new Symbol(sym.Mayor, yychar, yyline,yytext());}
 "\"" {return new Symbol(sym.Comillas, yychar, yyline,yytext());}
 ":" {return new Symbol(sym.DosPuntos, yychar, yyline,yytext());}
+"{" {return new Symbol(sym.A_Llaves, yychar, yyline,yytext());}
+"}" {return new Symbol(sym.C_Llaves, yychar, yyline,yytext());}
 {L}({L}|{D})* {return new Symbol(sym.Identificador, yychar, yyline,yytext());}
 ("(-"{D}+")")|{D}+ {return new Symbol(sym.Numero, yychar, yyline,yytext());}
  . {return new Symbol(sym.ERROR, yychar, yyline,yytext());}
