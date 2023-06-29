@@ -7,11 +7,16 @@ package Lexico;
 import java.io.File;
 import Lexico.Lexer;
 import Utilidades.Automatas;
+import Utilidades.Funciones;
+import Utilidades.Metodos;
 import Variables.Variables;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
@@ -25,6 +30,7 @@ public class App extends javax.swing.JFrame {
     /**
      * Creates new form App
      */
+    ArrayList<Metodos> metodos;
     Automatas automata;
     ArrayList<Variables> variables;
     ArrayList<String> errores;
@@ -32,6 +38,7 @@ public class App extends javax.swing.JFrame {
     String nombre = "";
     String tipo = "";
     String valor = "";
+    String valorAnterior1="o";
     String valor2 = "";
     String operador = "";
     String nombreVariablePendiente = "";
@@ -42,6 +49,9 @@ public class App extends javax.swing.JFrame {
     int forVar2 = 0;
     String ValorVariableLeer = "null";
     ArrayList<String> variablesLeer;
+    String varPendienteAnterior1="";
+    String operadorAnterior="";
+    
 
     String var1ForWhile = "";
     String var2ForWhile = "";
@@ -62,12 +72,31 @@ public class App extends javax.swing.JFrame {
     //contador de cierre y apertura de bloques
     int bloque = 0;
     String textoForFOR = "";
-
+    
+    //PARA LOS METODOS
+    String nombreMetodoOFuncion="";
+    String cuerpoMetodo="";
+    Map<String, Object> atributos;
+    String tipoVar="";
+    String nombreVar="";
+    String valorParametro="";//esta variable guiarda el valor del parametro cuando el metodo es llamado
+    ArrayList<Object> params;
+    
+    //PARA LAS FUNCIONES
+    ArrayList<Funciones> funciones;
+    String cuerpoFuncion="";
+    String tipoRetorno="";
+    String valor1Funcion="";
+    
     public App() {
         initComponents();
         variables = new ArrayList<>();
         errores = new ArrayList<>();
         variablesLeer = new ArrayList<>();
+        metodos = new ArrayList<>();
+        atributos = new HashMap();
+        params=new ArrayList<>();
+        funciones = new ArrayList<>();
     }
 
     /**
@@ -256,18 +285,28 @@ public class App extends javax.swing.JFrame {
     private void runCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runCodeActionPerformed
         // TODO add your handling code here:
         //analizarLexico();
+        operadorAnterior="";
+        varPendienteAnterior1="";
+        valor1Funcion="";
+        valorAnterior1="o";
          textoForIF = "";
          textoForIFELSE = "";
          textoForSwitch = "";
          textoForWhile = "";
          textoForFOR = "";
          compilacion = "";
+         cuerpoMetodo="";
+         cuerpoFuncion="";
         console.setText("");
         compilacion = "INICIANDO COMPILACION";
         //ejecutor();
         variablesLeer = new ArrayList<>();
         variables = new ArrayList<>();
         errores = new ArrayList<>();
+        metodos = new ArrayList<>();
+        atributos = new HashMap();
+        params=new ArrayList<>();
+        funciones = new ArrayList<>();
         run();
         imprimirVariables();
         imprimirErrores();
@@ -486,7 +525,8 @@ public class App extends javax.swing.JFrame {
     private void evaluarAsignaciones(Tokens tokens, Lexer lexer, int linea, int columna) {
         if (estadoActual != 10 && estadoActual != 27 && estadoActual != 37 && estadoActual != 50 && estadoActual != 94 && estadoActual != 100
                 && estadoActual != 107 && estadoActual != 112 && estadoActual != 134 && estadoActual != 143 && estadoActual != 150 && estadoActual != 152
-                && estadoActual != 153 && estadoActual != 154 && estadoActual != 48 && estadoActual != 88 && estadoActual!=90) {
+                && estadoActual != 153 && estadoActual != 154 && estadoActual != 48 && estadoActual != 88 && estadoActual!=90 &&estadoActual!=162
+                &&estadoActual!=169 && estadoActual!=179 && estadoActual!=185 && estadoActual!=189) {
             if (automata.valorToken(tokens) != 11) {
                 evaluarEstados(automata.verificarSiguienteEstado(estadoActual, tokens), tokens, lexer, linea, columna);
             }
@@ -556,7 +596,7 @@ public class App extends javax.swing.JFrame {
             if (bloque == 0) {
                 bloque++;
             }
-            operacionesDelFor(tokens, lexer, linea, columna);
+            operacionesDelFor(tokens, lexer, linea, columna, forVar1, forVar2);
 
         } else if (estadoActual == 88) {//ESTADO PARA EL SI Y EL SINO
             if (bloque == 0) {
@@ -571,6 +611,20 @@ public class App extends javax.swing.JFrame {
                 bloque++;
             }
             operacionesDelSISINO(tokens,false,textoForIFELSE,lexer,linea,columna);    
+        }//para los metodos
+        else if(estadoActual==162){
+            if(bloque==0){bloque++;}
+            funcionGuardarCuerpoMetodo(tokens, lexer);
+            
+        }else if(estadoActual==169 || estadoActual==185||estadoActual==189){
+            if(automata.valorToken(tokens)!=21){
+                valorParametro += lexer.lexeme;
+            }else{
+                evaluarEstados(automata.verificarSiguienteEstado(estadoActual, tokens), tokens, lexer, linea, columna);
+            }
+        }else if(estadoActual==179){
+            if(bloque==0){bloque++;}
+            funcionGuardarCuerpoFuncion(tokens, lexer);
         }
         else {
             if (automata.valorToken(tokens) != 21) {
@@ -581,7 +635,172 @@ public class App extends javax.swing.JFrame {
 
         }
     }
+    
+    private void operacionesDeLaFuncion(int linea, int columna){
+        String cuerpo="";
+        boolean exist=false;
+        for (Funciones funcion : funciones) {
+            if(funcion.getNombre().equals(nombreMetodoOFuncion)){
+                exist=true;
+                cuerpo=funcion.getCuerpo();
+            }
+        }
+        if(exist==false){
+            errores.add("La funcion: " + nombreMetodoOFuncion + " no existe o no se ha definido aun.");
+            estadoActual=0;
+        }else{
+            Lexer lexerFuncion = new Lexer(new StringReader(cuerpo));
+            boolean seguir = true;
+            estadoActual = 0;
+            while (seguir == true) {
+                try {
+                    Tokens tokenFuncion = lexerFuncion.yylex();
+                    System.out.println("entrando en el while del metodo: " +nombreMetodoOFuncion  +", cuerpo: \n" + cuerpo);
+                    if (tokenFuncion == null) {
+                        if (errores.size() == 0) {
+                            console.setForeground(Color.white);
+                            console.setText(console.getText() + compilacion);
+                            estadoActual = 0;
+                            //nombreMetodoOFuncion="";
 
+                        } else {
+                            console.setText("");
+                            for (String error : errores) {
+                                console.setForeground(Color.red);
+                                console.setText(console.getText() + error + "\n");
+                            }
+                        }
+
+                        seguir = false;
+                    } else {
+                        columna += lexerFuncion.lexeme.length();
+                        switch (tokenFuncion) {
+                            case Linea:
+                                linea++;
+                                columna = 0;
+                                break;
+                            default:
+                                //resultado+= lexer.lexeme + "            Es un: " + tokens + ", en la columna: " + columna + " linea: " + linea + "\n";
+                                System.out.println("entrando en evaluar asignaciones de la funcion: " + nombreMetodoOFuncion);
+                                evaluarAsignaciones(tokenFuncion, lexerFuncion, linea, columna);
+                                //evaluarEscritura(tokens,lexer,linea,columna);
+                                System.out.println(estadoActual);
+                        }
+                    }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
+    private void funcionGuardarCuerpoFuncion(Tokens token, Lexer lexer){
+        evaluarBloque(token);
+        if (bloque != 0) {
+            cuerpoFuncion+=lexer.lexeme;
+            //System.out.println(cuerpoMetodo);
+        }else{
+            System.out.println("ya se cerraron los bloques: bloque: " + bloque);
+            Funciones funcion = new Funciones();
+            funcion.setNombre(nombreMetodoOFuncion);
+            funcion.setCuerpo(cuerpoFuncion);
+            funcion.setTipoRetorno(tipoRetorno);
+            funcion.setAtributos(atributos);
+            funciones.add(funcion);
+            System.out.println(funciones.toString());
+            cuerpoFuncion="";
+            estadoActual=0;
+            tipoVar="";
+            nombreVar="";
+            atributos = new HashMap();
+        }
+    }
+
+    private void operacionesDelMetodo(int linea, int columna){
+        String cuerpo="";
+        boolean exist=false;
+        for (Metodos metodo : metodos) {
+            if(metodo.getNombre().equals(nombreMetodoOFuncion)){
+                exist=true;
+                cuerpo=metodo.getCuerpo();
+            }
+        }
+        if(exist==false){
+            errores.add("El metodo: " + nombreMetodoOFuncion + " no existe o no se ha definido aun.");
+            estadoActual=0;
+        }else{
+            Lexer lexerMetod = new Lexer(new StringReader(cuerpo));
+            boolean seguir = true;
+            estadoActual = 0;
+            while (seguir == true) {
+                try {
+                    Tokens tokenMetod = lexerMetod.yylex();
+                    System.out.println("entrando en el while del metodo: " +nombreMetodoOFuncion  +", cuerpo: \n" + cuerpo);
+                    if (tokenMetod == null) {
+                        if (errores.size() == 0) {
+                            console.setForeground(Color.white);
+                            console.setText(console.getText() + compilacion);
+                            estadoActual = 0;
+                            nombreMetodoOFuncion="";
+
+                        } else {
+                            console.setText("");
+                            for (String error : errores) {
+                                console.setForeground(Color.red);
+                                console.setText(console.getText() + error + "\n");
+                            }
+                        }
+
+                        seguir = false;
+                    } else {
+                        columna += lexerMetod.lexeme.length();
+                        switch (tokenMetod) {
+                            case Linea:
+                                linea++;
+                                columna = 0;
+                                break;
+                            default:
+                                //resultado+= lexer.lexeme + "            Es un: " + tokens + ", en la columna: " + columna + " linea: " + linea + "\n";
+                                System.out.println("entrando en evaluar asignaciones");
+                                evaluarAsignaciones(tokenMetod, lexerMetod, linea, columna);
+                                //evaluarEscritura(tokens,lexer,linea,columna);
+                                System.out.println(estadoActual);
+
+                        }
+                    }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    private void funcionGuardarCuerpoMetodo(Tokens token, Lexer lexer){
+        evaluarBloque(token);
+        if (bloque != 0) {
+            cuerpoMetodo+=lexer.lexeme;
+            //System.out.println(cuerpoMetodo);
+        }else{
+            System.out.println("ya se cerraron los bloques: bloque: " + bloque);
+            Metodos newMetod = new Metodos();
+            Map att = atributos;
+            newMetod.setNombre(nombreMetodoOFuncion);
+            newMetod.setCuerpo(cuerpoMetodo);
+            newMetod.setAtributos(att);
+            //en caso de parametros si es que los hubiese
+            
+            metodos.add(newMetod);
+            System.out.println(metodos.toString());
+            cuerpoMetodo="";
+            estadoActual=0;
+            tipoVar="";
+            nombreVar="";
+            atributos = new HashMap();
+            //System.out.println(atributos.size());
+        }
+        //System.out.println(metodos.toString());
+    }
     private void operacionesDelSISINO(Tokens token, boolean condicion, String textoGuardar, Lexer lexer, int linea, int columna) {
         evaluarBloque(token);
         if (bloque != 0) {
@@ -646,19 +865,26 @@ public class App extends javax.swing.JFrame {
         }
     }
 
-    private void operacionesDelFor(Tokens token, Lexer lexer, int linea, int columna) {
+    private void operacionesDelFor(Tokens token, Lexer lexer, int linea, int columna, int var1, int var2) {
         evaluarBloque(token);
         if (bloque != 0) {
             textoForFOR += lexer.lexeme;
             //System.out.println(textoForFOR);
         } else {
+           int varfor1=var1;
+           int varfor2=var2;
+           String texto = textoForFOR;
+            for (int i = 0; i < (forVar2-forVar1); i++) {
+                textoForFOR+=texto;                
+            }
             System.out.println("ya se cerraron los bloques: bloque: " + bloque);
             Lexer lexerFor = new Lexer(new StringReader(textoForFOR));
 
             boolean seguir = true;
-            System.out.println("entrando al for con: " + forVar1 + " y " + forVar2);
+            System.out.println("entrando al for con: " + var1 + " y " + var2);
             estadoActual = 0;
             System.out.println(textoForFOR);
+            textoForFOR="";
             while (seguir == true) {
                 try {
                     Tokens tokenFor = lexerFor.yylex();
@@ -671,13 +897,14 @@ public class App extends javax.swing.JFrame {
                             //System.out.println(compilacion);
                             //estadoActual = 0;
                             //estadoActual=automata.verificarSiguienteEstado(estadoActual, token);
-                            forVar1++;
-                            if (forVar1 < forVar2) {
-                                bloque++;
-                                operacionesDelFor(token, lexer, linea, columna);
+                            /*varfor1++;
+                            if (varfor1 < varfor2 ){
+                            bloque++;
+                            operacionesDelFor(token, lexer, linea, columna, varfor1, varfor1);
                             } else {
-                                textoForFOR = "";
-                            }
+                            textoForFOR = "";
+                            }*/
+                            textoForFOR = "";
                         } else {
                             console.setText("");
                             for (String error : errores) {
@@ -923,9 +1150,11 @@ public class App extends javax.swing.JFrame {
             tipo = lexer.lexeme;
             estadoActual = estado;
         } else if (estado == 4 || estado == 8 || estado == 13) {
+            System.out.println("voy en el estado 4 guardando el nombre: "+lexer.lexeme);
             nombre = lexer.lexeme;
             estadoActual = estado;
         } else if (estado == 6 || estado == 24) {
+            valor1Funcion=lexer.lexeme;
             valor = lexer.lexeme;
             estadoActual = estado;
         } else if (estado == 7 || estado == 12 || estado == 18) {
@@ -942,19 +1171,31 @@ public class App extends javax.swing.JFrame {
             }
             if (exist == false) {
                 variables.add(var);
+            }else{
+                for (Variables variable : variables) {
+                    if (variable.getNombre().equals(varPendienteAnterior1)) {
+                        variable.setValor(valor);
+                        varPendienteAnterior1="";
+                    }
+                }
             }
 
-            nombre = "";
-            tipo = "";
-            valor = "";
+            //nombre = "";
+            //tipo = "";
+            valor="";
+            
+            
             estadoActual = 0;
         } else if (estado == 15 || estado == 16 || estado == 17 || estado == 31 || estado == 32 || estado == 33) {
             valor += lexer.lexeme;
             estadoActual = estado;
         } else if (estado == 19) {
+            
+            boolean exist =false;
             estadoActual = 30;
             for (Variables var : variables) {
                 if (var.getNombre().equals(lexer.lexeme)) {
+                    exist=true;
                     if (var.getTipo().equals("ENTERO")) {
                         estadoActual = 20;
                     } else if (var.getTipo().equals("TEXTO")) {
@@ -962,24 +1203,46 @@ public class App extends javax.swing.JFrame {
                     } else if (var.getTipo().equals("FLOTANTE")) {
                         estadoActual = 22;
                     }
+                    
                     nombreVariablePendiente = lexer.lexeme;
+                    if(varPendienteAnterior1.equalsIgnoreCase("")){
+                        varPendienteAnterior1=nombreVariablePendiente;
+                    }
+                    
                 }
             }
-            if (estadoActual == 30) {
-                errores.add("La variable " + lexer.lexeme + ", no existe o no se ha definido, linea: " + linea + ", columna: " + columna);
+            for (Metodos metodo : metodos) {
+                if(metodo.getNombre().equals(lexer.lexeme)){
+                    exist=true;
+                    nombreMetodoOFuncion=lexer.lexeme;
+                    estadoActual=estado;
+                }
+            }
+            if (exist == false) {
+                errores.add("La variable/Metodo " + lexer.lexeme + ", no existe o no se ha definido, linea: " + linea + ", columna: " + columna);
             }
         } else if (estado == 25 || estado == 29 || estado == 34) {
             for (Variables var : variables) {
                 if (var.getNombre().equals(nombreVariablePendiente)) {
                     var.setValor(valor);
                     estadoActual = 0;
-                    valor = "";
+                    //valor = "";
                     nombreVariablePendiente = "";
                 }
             }
         }//DE AQUI HACIA ABAJO SOBRE OPERACIONES CON NUMEROS ENTEROS
         else if (estado == 61 || estado == 60 || estado == 62 || estado == 66) {
             boolean exist = false;
+            if(estado==60||estado==61||estado==62||estado==66){
+                
+                for (Funciones funcion : funciones) {
+                    if(funcion.getNombre().equals(lexer.lexeme)){
+                        nombreMetodoOFuncion=lexer.lexeme;
+                        exist=true;
+                    }
+                }
+            }
+            
             for (Variables var : variables) {
                 if (var.getNombre().equals(lexer.lexeme)) {
                     exist = true;
@@ -990,6 +1253,8 @@ public class App extends javax.swing.JFrame {
 
                         if (estado == 61 || estado == 62) {
                             valor = var.getValor();
+                            valor1Funcion=valor;
+                            valorAnterior1=valor;
                         } else if (estado == 60 || estado == 66) {
                             valor2 = var.getValor();
                         }
@@ -999,17 +1264,77 @@ public class App extends javax.swing.JFrame {
                     }
                 }
             }
+            if(exist==false){
+                System.out.println("voy en el estado 62>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                System.out.println(nombreMetodoOFuncion);
+                for (Metodos metodo : metodos) {
+                    if(metodo.getNombre().equals(nombreMetodoOFuncion)){
+                        String nombre = devolverNombreAtributo(metodo.getNombre());
+                        List claves = new ArrayList(metodo.getAtributos().keySet());
+                        for (int i = 0; i < claves.size(); i++) {
+                            if(lexer.lexeme.equals(devolverNombreAtributo((String) claves.get(i)))){
+                                exist=true;
+                                System.out.println(devolverNombreAtributo((String) claves.get(i)));
+                                if (estado == 61 || estado == 62) {
+                                    valor = metodo.getAtributos().get(claves.get(i)).toString();
+                                } else if (estado == 60 || estado == 66) {
+                                    valor2 = metodo.getAtributos().get(claves.get(i)).toString();
+                                }
+                                i=claves.size();
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            if(exist==false){
+                System.out.println("voy en el estado 62>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                System.out.println(nombreMetodoOFuncion);
+                for (Funciones funcion : funciones) {
+                    if(funcion.getNombre().equals(nombreMetodoOFuncion)){
+                        String nombre = devolverNombreAtributo(funcion.getNombre());
+                        List claves = new ArrayList(funcion.getAtributos().keySet());
+                        for (int i = 0; i < claves.size(); i++) {
+                            if(lexer.lexeme.equals(devolverNombreAtributo((String) claves.get(i)))){
+                                exist=true;
+                                System.out.println(devolverNombreAtributo((String) claves.get(i)));
+                                if (estado == 61 || estado == 62) {
+                                    valor = funcion.getAtributos().get(claves.get(i)).toString();//esto es cuando este dentro de una funcion y este usando sus parametros para operar
+                                } else if (estado == 60 || estado == 66) {
+                                    valor2 = funcion.getAtributos().get(claves.get(i)).toString();
+                                }
+                                i=claves.size();
+                            }
+                            
+                        }
+                    }
+                }
+            }
             if (exist == false) {
                 errores.add("La variable con nombre: " + lexer.lexeme + " No existe o no se ha creado aun, Linea: " + linea + ", Columna: " + columna);
             }
             estadoActual = estado;
         } else if (estado == 57 || estado == 63) {
             operador = lexer.lexeme;
+            
+            System.out.println("voy en el estado: "+estado);
+            
+            System.out.println(operador);
             estadoActual = estado;
         } else if (estado == 58 || estado == 64) {
             valor2 = lexer.lexeme;
-            estadoActual = estado;
+            System.out.println("Voy en el estado 58 con token: "+token);
+            estadoActual=estado;
         } else if (estado == 59) {
+            if(valor.equalsIgnoreCase("")){
+                valor=valor1Funcion;
+            }
+            if(!operadorAnterior.equalsIgnoreCase("")){
+                operador=operadorAnterior;
+                operadorAnterior="";
+            }
+            System.out.println("."+valor+".");
+            System.out.println("."+valor2+".");
             try {
                 int var1 = Integer.parseInt(valor);
                 int var2 = Integer.parseInt(valor2);
@@ -1018,16 +1343,37 @@ public class App extends javax.swing.JFrame {
                 var.setNombre(nombre);
                 var.setTipo(tipo);
                 var.setValor(valor);
-                variables.add(var);
-                nombre = "";
-                tipo = "";
-                valor = "";
+                boolean exist = false;
+                for (Variables variable : variables) {
+                    if (variable.getNombre().equals(nombre)) {
+                        exist = true;
+                    }
+                }
+                if (exist == false) {
+                    variables.add(var);
+                     varPendienteAnterior1 = "";
+                } else {
+                    for (Variables variable : variables) {
+                        if (variable.getNombre().equals(varPendienteAnterior1)) {
+                            variable.setValor(valor);
+                            varPendienteAnterior1 = "";
+                        }
+                    }
+                }                
+                //nombre = "";
+                //tipo = "";
+                //valor = "";
                 valor2 = "";
+                valor1Funcion="";
                 estadoActual = 0;
             } catch (NumberFormatException e) {
+                System.out.println("error de integracion");
+                System.out.println("."+valor+".");
+                System.out.println("."+valor2+".");
             }
 
         } else if (estado == 65) {
+            
             try {
                 int var1 = Integer.parseInt(valor);
                 int var2 = Integer.parseInt(valor2);
@@ -1039,9 +1385,9 @@ public class App extends javax.swing.JFrame {
                     }
                 }
 
-                nombre = "";
-                tipo = "";
-                valor = "";
+                //nombre = "";
+                //tipo = "";
+                valor ="";
                 valor2 = "";
                 estadoActual = 0;
             } catch (NumberFormatException e) {
@@ -1067,6 +1413,22 @@ public class App extends javax.swing.JFrame {
                     exist = true;
                 }
                 //if(estado==54){ Escritura += "\n";}
+            }
+            if(exist==false){
+                for (Metodos metodo : metodos) {
+                    if(metodo.getNombre().equals(nombreMetodoOFuncion)){                        
+                        List claves = new ArrayList(metodo.getAtributos().keySet());
+                        for (int i = 0; i < claves.size(); i++) {
+                            if(lexer.lexeme.equals(devolverNombreAtributo((String) claves.get(i)))){
+                                exist=true;
+                                System.out.println(devolverNombreAtributo((String) claves.get(i)));
+                                Escritura+=metodo.getAtributos().get(claves.get(i));
+                                i=claves.size();
+                            }
+                            
+                        }
+                    }
+                }
             }
             if (exist == false) {
                 errores.add("Error semantico: La variable: " + lexer.lexeme + ", no existe, Linea: " + linea + ", Columna: " + columna);
@@ -1184,7 +1546,7 @@ public class App extends javax.swing.JFrame {
             for (Variables var : variables) {
                 if (var.getNombre().equals(nombreVariablePendiente)) {
                     var.setValor(valor);
-                    valor = "";
+                    //valor = "";
                     nombreVariablePendiente = "";
                 }
             }
@@ -1331,10 +1693,204 @@ public class App extends javax.swing.JFrame {
                 errores.add("La variable: " + variableSwitch.getNombre() + " no es de tipo ENTERO, Linea: " + linea + ", Columna: " + columna);
             }
             estadoActual = estado;
-        } else {
+        }//DE AQUI HACIA ABAJO SOBRE METODOS 
+        else if(estado==159||estado==173){//EL 172 YA ES DE LAS FUNCIONES
+            nombreMetodoOFuncion=lexer.lexeme;
+            estadoActual=estado;
+        }else if(estado==170){
+            operacionesDelMetodo(linea, columna);
+        }else if(estado==163||estado==176){//el 176 ya es parte de las funciones
+            tipoVar=lexer.lexeme;
+            estadoActual=estado;
+        }else if(estado==164||estado==177){//el estado 177 ya es de las funciones
+            nombreVar=lexer.lexeme;
+            switch (tipoVar) {
+                case "ENTERO":
+                    if (estado == 177) {
+                        atributos.put(atributos.size() + 1 + "." + nombreVar, 0);
+                    } else {
+                        atributos.put(atributos.size() + "." + nombreVar, 0);
+                    }
+                    break;
+                case "TEXTO":
+                    if (estado == 177) {
+                        atributos.put(atributos.size() + 1 + "." + nombreVar, "null");
+                    } else {
+                        atributos.put(atributos.size() + "." + nombreVar, "null");
+                    }
+                    break;
+                case "FLOTANTE":
+                    if (estado == 177) {
+                        atributos.put(atributos.size() + 1 + "." + nombreVar, 0.1);
+                    } else {
+                        atributos.put(atributos.size() + "." + nombreVar, 0.1);
+                    }
+
+                    break;
+            }
+            estadoActual=estado;
+        }else if(estado==167||estado==184||estado==188){
+            if(valorParametro.equalsIgnoreCase("")){
+                valorParametro=lexer.lexeme;
+            }
+            System.out.println("voy en el estado 167 o 184 0 188: " + params.size() +":"+ valorParametro);
+            params.add(valorParametro);
+            valorParametro="";
+            estadoActual=estado;
+        }else if(estado==168){
+            boolean exist=false;
+            for (Metodos metodo : metodos) {
+                if(metodo.getNombre().equals(nombreMetodoOFuncion)){
+                    exist=true;
+                    System.out.println(metodos.toString());
+                    if(metodo.getAtributos().size()!=params.size()){
+                        errores.add("Los atributos del metodo: " +metodo.getNombre() + " no estan completos en la llamada.");
+                        System.out.println("size:");
+                        System.out.println(metodo.toString());
+                        System.out.println(params.size());
+                    }else{
+                        System.out.println(metodo.getAtributos().size());
+                        System.out.println(params.size());
+                        List claves = new ArrayList(metodo.getAtributos().keySet());
+                        
+                        for (int i = 0; i <params.size(); i++) {
+                            String st = (String) claves.get(i).toString();
+                            String nombre=devolverNombreAtributo(st);
+                            System.out.println(devolverNombreAtributo(st)+ " = "+ params.get(i));
+                            if(metodo.getAtributos().get(claves.get(i)) instanceof Integer){
+                                try {
+                                    metodo.getAtributos().put(claves.get(i).toString(), Integer.parseInt(params.get(i).toString()));
+
+                                } catch (NumberFormatException e) {
+                                    errores.add("Error de formato de variable: "+claves.get(i).toString()+" no es numero entero, linea: " +linea+", columna: " + columna);
+                                }
+                            }else if(metodo.getAtributos().get(claves.get(i)) instanceof String){
+                                metodo.getAtributos().put(claves.get(i).toString(), params.get(i).toString());
+                            
+                            }else{
+                                try {
+                                    metodo.getAtributos().put(claves.get(i).toString(), Float.parseFloat(params.get(i).toString()));
+
+                                } catch (NumberFormatException e) {
+                                    errores.add("Error de formato de variable: "+params.get(i).toString()+" no es flotante, linea: " +linea+", columna: " + columna);
+                                }
+                            }
+                        }
+                        
+                    }
+                    params = new ArrayList<>();
+                }
+            }
+            System.out.println(metodos);
+            if (exist == false) {
+                errores.add("El metodo o funcion: "+nombreMetodoOFuncion+" no existe; linea: " + linea + ", columna: " + columna);
+            }
+            estadoActual=estado;
+        }// DE AQUI HACIA ABAJO EMPIEZAN LOS ESTADOS DE LAS FUNCIONES
+        else if(estado==172){
+            tipoRetorno=lexer.lexeme;
+            estadoActual=estado;
+        }else if(estado==181){
+            boolean exist=false;
+            for (Funciones funcion : funciones) {
+                if(funcion.getNombre().equals(nombreMetodoOFuncion)){
+                    
+                    for (Variables var : variables) {
+                        if(var.getNombre().equals(lexer.lexeme)){
+                            exist=true;
+                            if(funcion.getTipoRetorno().equals(var.getTipo())){
+                                funcion.setRetorno((Object)var.getValor());
+                            }else{
+                                 errores.add("La variable de retorno "+lexer.lexeme+" no es consistente con el retorno de la funcion: "+nombreMetodoOFuncion+" Linea: " + linea + ", columna: " + columna);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            if (exist == false) {
+                errores.add("La variable de retorno "+lexer.lexeme+" no existe; linea: " + linea + ", columna: " + columna);
+            }
+            estadoActual=estado;
+        }else if(estado==187){
+            operadorAnterior=operador;
+            estadoActual=estado;
+        }
+        else if(estado==186||estado==190){
+            
+            for (Funciones funcion : funciones) {
+                if(funcion.getNombre().equals(nombreMetodoOFuncion)){
+                    if (funcion.getAtributos().size() != params.size()) {
+                        errores.add("Los atributos de la funcion: " + funcion.getNombre() + " no estan completos en la llamada." +funcion.getAtributos().size() + ", "+params.size());
+                        System.out.println("size:");
+                        System.out.println(funcion.toString());
+                        System.out.println(params.size());
+                    } else {
+                        System.out.println(funcion.getAtributos().size());
+                        System.out.println(params.size());
+                        List claves = new ArrayList(funcion.getAtributos().keySet());
+
+                        for (int i = 0; i < params.size(); i++) {
+                            String st = (String) claves.get(i).toString();
+                            String nombre = devolverNombreAtributo(st);
+                            System.out.println(devolverNombreAtributo(st)+ " = "+ params.get(i));
+                            if (funcion.getAtributos().get(claves.get(i)).getClass() == Integer.class) {
+                                try {
+                                    funcion.getAtributos().put(claves.get(i).toString(), Integer.parseInt(params.get(i).toString()));
+
+                                } catch (NumberFormatException e) {
+                                    errores.add("Error de formato de variable: " + params.get(i).toString() + " no es numero entero, linea: " + linea + ", columna: " + columna);
+                                }
+                            } else if (funcion.getAtributos().get(claves.get(i)) instanceof String) {
+                                funcion.getAtributos().put(claves.get(i).toString(), params.get(i).toString());
+
+                            } else {
+                                try {
+                                    funcion.getAtributos().put(claves.get(i).toString(), Float.parseFloat(params.get(i).toString()));
+
+                                } catch (NumberFormatException e) {
+                                    errores.add("Error de formato de variable: " + params.get(i).toString() + " no es flotante, linea: " + linea + ", columna: " + columna);
+                                }
+                            }
+                        }
+                        
+                        System.out.println(funciones.toString());
+
+                    }
+                    params=new ArrayList<>();
+                }
+            }
+            operacionesDeLaFuncion(linea, columna);
+            for (Funciones funcion : funciones) {
+                if(funcion.getNombre().equals(nombreMetodoOFuncion)){
+                    if(estado==186){
+                        valor=(String) funcion.getRetorno();
+                        valor1Funcion=valor;
+                    }else if(estado==190){
+                        valor2=(String) funcion.getRetorno();
+                    }
+                }
+            }
+            estadoActual=estado;
+        }else if(estado==182){
+            estadoActual=0;
+        }
+        else {
             estadoActual = estado;
         }
 
+    }
+    
+    private String devolverNombreAtributo(String llave){
+        String nombre="";
+        for (int j = 0; j < llave.length(); j++) {
+            if (llave.charAt(j) == '.') {
+                //System.out.println("hay punto" + (j));
+                nombre=llave.substring(j+1, llave.length());
+                j=llave.length()+1;
+            }
+        }
+        return nombre;
     }
 
     private boolean comparar(String comparador, int var1, int var2) {
@@ -1368,6 +1924,7 @@ public class App extends javax.swing.JFrame {
                 break;
             case "-":
                 operacion = (var1 - var2);
+                System.out.println("restando: "+var1 + " con: " +var2 +"="+operacion);
                 break;
             case "*":
                 operacion = (var1 * var2);

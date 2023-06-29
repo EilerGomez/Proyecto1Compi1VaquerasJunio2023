@@ -49,5 +49,8 @@ public enum Tokens {
     CASO, //38
     DEFECTO, //39
     A_Llaves,//40
-    C_Llaves//41
+    C_Llaves,//41
+    METODO, //42
+    FUNCION,//43
+    RETORNO//44
 }

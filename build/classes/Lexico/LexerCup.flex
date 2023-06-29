@@ -37,6 +37,9 @@ A {return new Symbol(sym.A, yychar, yyline,yytext());}
 INTERRUPTOR {return new Symbol(sym.INTERRUPTOR, yychar, yyline,yytext());}
 CASO {return new Symbol(sym.CASO, yychar, yyline,yytext());}
 DEFECTO {return new Symbol(sym.DEFECTO, yychar, yyline,yytext());}
+METODO {return new Symbol(sym.METODO, yychar, yyline,yytext());}
+FUNCION {return new Symbol(sym.FUNCION, yychar, yyline,yytext());}
+RETORNO {return new Symbol(sym.RETORNO, yychar, yyline,yytext());}
 {saltos} {/*Ignore*/}
 {espacio} {/*Ignore*/}
 "//".* {/*Ignore*/}

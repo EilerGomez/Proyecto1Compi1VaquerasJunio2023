@@ -15,7 +15,7 @@ public class Automatas {
     int[][] tabla;
 
     public Automatas() {
-        this.tabla = new int[170][170];
+        this.tabla = new int[200][100];
         //ASIGNACION PARA ENTEROS
         tabla[0][0] = 0;
         tabla[0][1] = 1;//[ESTADO INICIAL][ENTERO] -> ESTADO1
@@ -116,7 +116,7 @@ public class Automatas {
         tabla[45][26] = 68;//[ESTADO 45] [ID] -> ESTADO 68
         tabla[68][23] = 47;//[ESTADO 68] [CIERRE_PARENTESIS] -> ESTADO 47
         tabla[47][40] = 48;//[ESTADO 47] [A_Llaves] -> ESTADO 48
-        
+
         //ESCRIBIR EN FOR
         tabla[47][31] = 48;//[ESTADO 47] [ESCRIBIR] -> ESTADO 48
         tabla[48][22] = 49;//[ESTADO 48] [A_paretnesis] -> ESTADO 49
@@ -175,7 +175,7 @@ public class Automatas {
         //tabla[88][10] = 90;//[ESTADO 88] [FIN] -> ESTADO 90 --> ESTADO INICIAL
         tabla[0][5] = 89;//[ESTADO 0] [SINO] -> ESTADO 89
         tabla[89][40] = 90;//[ESTADO 89] [A_Llaves] -> ESTADO 90 EN ESTE ESTADO GUARDA EL TEXTO HASTA QEU ENCUENTRE CIERRE DE LLAVES
-        
+
         tabla[92][22] = 93;//[ESTADO 92] [A_Parentesis] -> ESTADO 93
         tabla[93][26] = 99;//[ESTADO 93] [ID] -> ESTADO 99
         tabla[99][23] = 96;//[ESTADO 99] [C_Parentesis] -> ESTADO 96
@@ -265,6 +265,83 @@ public class Automatas {
         tabla[153][38] = 154;//[ESTADO 153] [caso] -> ESTADO 0 ESTADO INICIAL
         tabla[153][39] = 154;//[ESTADO 153] [DEFECTO] -> ESTADO 0 ESTADO INICIAL
         tabla[147][40] = 155;//[ESTADO 147] [A_Llaves] -> ESTADO 155
+
+        //PARA GUARDAR EL CUERPO DE UN METODO:
+        tabla[0][42] = 158;//[ESTADO 0] [METODO] -> ESTADO 158
+        tabla[158][26] = 159;//[ESTADO 158] [Identificador] -> ESTADO 159
+        tabla[159][22] = 160;//[ESTADO 159] [A_Parentesis] -> ESTADO 160
+        tabla[160][23] = 161;//[ESTADO 160] [C_Parentesis] -> ESTADO 161
+        tabla[161][40] = 162;//[ESTADO 161] [A_Llaves] -> ESTADO 162 GUARDAR TODOS LOS TOKENS Y LEXEMAS HASTA ENCONTRAR UN CIERRE DE LLAVE Y QUE EL BLOQUE =0
+        //PARAMETROS DEL METODO
+        tabla[160][1] = 163;//[ESTADO 160] [ENTERO] -> ESTADO 163
+        tabla[160][2] = 163;//[ESTADO 160] [TEXTO] -> ESTADO 163
+        tabla[160][3] = 163;//[ESTADO 160] [FLOTANTE] -> ESTADO 163
+        tabla[163][26] = 164;//[ESTADO 163] [Identificador] -> ESTADO 164
+        tabla[164][18] = 165;//[ESTADO 164] [Cierre] -> ESTADO 165
+        tabla[165][1] = 163;//[ESTADO 165] [ENTERO] -> ESTADO 163
+        tabla[165][2] = 163;//[ESTADO 165] [TEXTO] -> ESTADO 163
+        tabla[165][3] = 163;//[ESTADO 165] [FLOTANTE] -> ESTADO 163
+        tabla[164][23] = 161;//[ESTADO 164] [C_Parentesis] -> ESTADO 161
+
+        //PARA LLAMAR A UN METODO
+        tabla[19][22] = 166;//[ESTADO 19] [A_Parentesis] -> ESTADO 166
+        tabla[166][27] = 167;//[ESTADO 166] [Numero] -> ESTADO 167
+        tabla[167][18] = 166;//[ESTADO 167] [Cierre] -> ESTADO 166
+        tabla[166][21] = 169;//[ESTADO 166] [Comillas] -> ESTADO 169
+        tabla[169][21] = 167;//[ESTADO 169] [Comillas] -> ESTADO 167
+        tabla[166][23] = 168;//[ESTADO 166] [C_Parentesis] -> ESTADO 168
+        tabla[167][23] = 168;//[ESTADO 167] [C_Parentesis] -> ESTADO 168
+        tabla[168][18] = 170;//[ESTADO 168] [Cierre] -> ESTADO 170 --> ESTADO INICIAL EJECUTAR EL CODIGO QUE CONTIENE EL METODO
+
+        //PARA GUARDAR EL CUERPO DE UNA FUNCION
+        tabla[0][43] = 171;//[ESTADO 0] [FUNCION] -> ESTADO 171
+        tabla[171][1] = 172;//[ESTADO 171] [ENTERO] -> ESTADO 172
+        tabla[171][2] = 172;//[ESTADO 171] [TEXTO] -> ESTADO 172
+        tabla[171][3] = 172;//[ESTADO 171] [FLOTANTE] -> ESTADO 172
+        tabla[172][26] = 173;//[ESTADO 172] [Identificador] -> ESTADO 173
+        tabla[173][22] = 174;//[ESTADO 173] [A_PArentesis] -> ESTADO 174
+        tabla[174][23] = 175;//[ESTADO 174] [c_pARENTESIS] -> ESTADO 175
+        tabla[174][1] = 176;//[ESTADO 174] [ENTERO] -> ESTADO 176
+        tabla[174][2] = 176;//[ESTADO 174] [TEXTO] -> ESTADO 176
+        tabla[174][3] = 176;//[ESTADO 174] [FLOTANTE] -> ESTADO 176
+        tabla[176][26] = 177;//[ESTADO 176] [Id] -> ESTADO 177
+        tabla[177][18] = 178;//[ESTADO 177] [cierre] -> ESTADO 178
+        tabla[178][1] = 176;//[ESTADO 178] [ENTERO] -> ESTADO 176
+        tabla[178][2] = 176;//[ESTADO 178] [TEXTO] -> ESTADO 176
+        tabla[178][3] = 176;//[ESTADO 178] [FLOTANTE] -> ESTADO 176
+        tabla[177][23] = 175;//[ESTADO 177] [C_Parentesis] -> ESTADO 175
+        tabla[175][40] = 179;//[ESTADO 175] [A_Llaves] -> ESTADO 179
+
+        //reconociendo el valor del retorno
+        tabla[0][44] = 180;//[ESTADO 0] [RETORNO] -> ESTADO 180
+        tabla[180][26] = 181;//[ESTADO 180] [ID] -> ESTADO 181
+        tabla[181][18] = 182;//[ESTADO 181] [CIERRE] -> ESTADO 182-----> VUELVCE AL ESTADO INICIAL
+        
+        //PARA CUANDO ESTEN ASIGNANDO PERO VIENE UNA FUNCION DECLARANDO
+        tabla[62][22] = 183;//[ESTADO 62] [A_PARENTESIS] -> ESTADO 183
+        tabla[61][22] = 183;//[ESTADO 61] [A_PARENTESIS] -> ESTADO 183
+        tabla[183][27] = 184;//[ESTADO 183] [NUMERO] -> ESTADO 184
+        tabla[183][21] = 185;//[ESTADO 183] [COMILLAS] -> ESTADO 185
+        tabla[185][21] = 184;//[ESTADO 185] [COMILLAS] -> ESTADO 184
+        tabla[184][18] = 183;//[ESTADO 184] [CIERRE] -> ESTADO 183
+        tabla[183][23] = 186;//[ESTADO 183] [C_PARENTESIS] -> ESTADO 186
+        tabla[184][23] = 186;//[ESTADO 184] [C_PARENTESIS] -> ESTADO 186
+        tabla[186][14] = 57;//[ESTADO 186] [suma] -> ESTADO 57
+        tabla[186][15] = 57;//[ESTADO 186] [resta] -> ESTADO 57
+        tabla[186][16] = 57;//[ESTADO 186] [mult] -> ESTADO 57
+        tabla[186][17] = 57;//[ESTADO 186] [division] -> ESTADO 57
+        tabla[186][18] = 7;//[ESTADO 61] [A_PARENTESIS] -> ESTADO 183
+        
+        
+        tabla[66][22] = 187;//[ESTADO 66] [A_PARENTESIS] -> ESTADO 187
+        tabla[60][22] = 187;//[ESTADO 60] [A_PARENTESIS] -> ESTADO 187
+        tabla[187][27] = 188;//[ESTADO 187] [NUMERO] -> ESTADO 188
+        tabla[187][21] = 189;//[ESTADO 187] [COMILLAS] -> ESTADO 189
+        tabla[189][21] = 188;//[ESTADO 189] [COMILLAS] -> ESTADO 188
+        tabla[188][18] = 187;//[ESTADO 188] [CIERRE] -> ESTADO 187
+        tabla[187][23] = 190;//[ESTADO 187] [C_PARENTESIS] -> ESTADO 189
+        tabla[188][23] = 190;//[ESTADO 188] [C_PARENTESIS] -> ESTADO 189
+        tabla[190][18] = 59;//[ESTADO 189] [CIERRE] -> ESTADO 59
     }
 
     public int verificarSiguienteEstado(int estadoActual, Tokens token) {
@@ -402,10 +479,19 @@ public class Automatas {
                 num = 39;
                 break;
             case A_Llaves://40
-                num=40;
+                num = 40;
                 break;
             case C_Llaves://41
-                num=41;
+                num = 41;
+                break;
+            case METODO:
+                num = 42;
+                break;
+            case FUNCION:
+                num = 43;
+                break;
+            case RETORNO:
+                num = 44;
                 break;
         }
         return num;

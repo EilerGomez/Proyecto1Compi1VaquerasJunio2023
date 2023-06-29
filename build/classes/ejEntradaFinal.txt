@@ -1,3 +1,9 @@
+METODO Saludar(){
+  
+  PARA(1 A 5){
+            ESCRIBIR("HOLA MUNDO XD");
+  }
+}
 TEXTO LINEA=" " ;
 TEXTO NOVIOS ;
 NOVIOS = "no";
@@ -89,3 +95,92 @@ MIENTRAS(DOS<=6){
       DOS=DOS+1;      
   
 }
+
+//EJEMPLO BASICO DE UN METODO
+
+
+Saludar();
+
+ESCRIBIR("Fuera del metodo");
+
+SI(1==1){
+  Saludar();
+}
+
+
+
+
+
+//EJEMPLO DE UN METODO CON PARAMETROS
+ENTERO UNO = 2;
+
+METODO Restar(ENTERO uno; ENTERO dos; TEXTO tres; FLOTANTE cinco; ENTERO var){
+ ESCRIBIR("ESTO ES UNA Resta");
+  UNO = uno+dos;
+  ESCRIBIR(UNO);
+  ESCRIBIR(tres);
+  ESCRIBIR(uno);
+  ESCRIBIR(dos);
+  ESCRIBIR(cinco);
+}
+METODO sumar(ENTERO uno; ENTERO dos; TEXTO tres; FLOTANTE cinco){
+ ESCRIBIR("ESTO ES UNA Suma");
+}
+
+METODO imprimir(){
+  ESCRIBIR("esta es una impresion");
+  UNO = UNO+UNO;
+   ESCRIBIR("var UNO: ");
+   ESCRIBIR(UNO);
+}
+
+Restar(1;2;"hola";22;34);
+
+imprimir();
+
+
+
+//EJEMPLO BASICO DE FUNCIONES
+ENTERO suma = 1;
+ENTERO resta=1;
+TEXTO LINEA =" ";
+FUNCION ENTERO sumar(ENTERO var1; ENTERO var2){
+   suma = var1+var2;
+   RETORNO suma;
+}
+
+FUNCION ENTERO restar(ENTERO v1; ENTERO v2){
+    resta = v1 - v2;
+    RETORNO resta;
+}
+
+ENTERO TRES=sumar(1;3)+sumar(1;4);
+
+ENTERO cuatro=2+sumar(1;4);
+
+ENTERO cinco=2+2;
+
+ENTERO seis=sumar(1;4)+5;
+
+ENTERO siete = restar(5;4);
+
+ENTERO tres;
+
+
+suma = restar(110;1)+5;
+
+ENTERO dos = restar(12;2) +restar(10;6);
+
+tres=restar(11;1)+restar(11;1);
+
+PARA(1 A 3){
+  ESCRIBIR("HOLA MUNDO");
+   tres=resta(10;7)+tres;
+   ESCRIBIR(tres);
+}
+ESCRIBIR(LINEA);
+ESCRIBIR(TRES);
+ESCRIBIR(cuatro);
+ESCRIBIR(cinco);
+ESCRIBIR(seis);
+ESCRIBIR(siete);

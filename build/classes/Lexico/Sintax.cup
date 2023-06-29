@@ -15,11 +15,11 @@ parser code
 }
 :};
 
-terminal ENTERO,TEXTO,FLOTANTE,SI,SINO,PARA,MIENTRAS,DONDE,ENTONCES,FIN,LEER, ESCRIBIR,A,INTERRUPTOR,CASO,DosPuntos,DEFECTO,A_Llaves, C_Llaves,
+terminal ENTERO,TEXTO,FLOTANTE,SI,SINO,PARA,MIENTRAS,DONDE,ENTONCES,FIN,LEER, METODO,ESCRIBIR,A,INTERRUPTOR,CASO,DosPuntos,DEFECTO,A_Llaves, C_Llaves,FUNCION, RETORNO,
 Espacio,Asignacion,Comparacion,Suma,Resta,Multiplicacion,Division,Cierre,Coma, Punto,A_Parentesis,C_Parentesis, MenorIgual,MayorIgual,Comillas,Menor,Mayor,
 Identificador,Numero, ERROR;
 non terminal INICIO, DECLARACION, ESCRITURA, LECTURA, FOR,SENTENCIA_FOR,VALORES, IF, IF_ELSE, SENTENCIAS_IF_ELSE, LOQUE_SEA, OPERADORES, WHILE, SWITCH,
-                CASES;
+                CASES, METODOS, ATRIBUTOS, TIPOS, LLAMADAMETODO, PARAMETROS, FUNCTION, LLAMADAFUNCION;
 
 start with INICIO;
 
@@ -39,7 +39,13 @@ INICIO ::=
           INICIO WHILE|
           WHILE|
           INICIO SWITCH
-          |SWITCH
+          |SWITCH|
+          METODOS|
+          INICIO METODOS|
+          LLAMADAMETODO|
+          INICIO LLAMADAMETODO|
+          FUNCTION|
+          INICIO FUNCTION
 ;
 
 DECLARACION ::= 
@@ -52,6 +58,7 @@ DECLARACION ::=
           FLOTANTE Identificador Asignacion Numero Cierre|
           FLOTANTE Identificador Asignacion Numero Punto Numero Cierre|
           Identificador Asignacion Numero Punto Numero Cierre|
+          Identificador Asignacion LLAMADAFUNCION Cierre|
 
           ENTERO Identificador Cierre|
           TEXTO Identificador Cierre|
@@ -61,7 +68,6 @@ DECLARACION ::=
           ENTERO Identificador Asignacion VALORES Cierre|
           Identificador Asignacion VALORES OPERADORES VALORES Cierre|
           FLOTANTE Identificador Asignacion VALORES OPERADORES VALORES Cierre
-
 ;
 OPERADORES ::=
             Suma|Resta|Division|Multiplicacion
@@ -93,7 +99,9 @@ SENTENCIA_FOR ::=
 VALORES ::=
            Numero|
            Identificador|
-           Numero Punto Numero
+           Numero Punto Numero|
+           Comillas LOQUE_SEA Comillas|
+           LLAMADAFUNCION
 ;
 
 IF ::=
@@ -111,26 +119,28 @@ SENTENCIAS_IF_ELSE ::=
     SWITCH|
     IF|
     IF_ELSE|
+    LLAMADAMETODO|
     SENTENCIAS_IF_ELSE ESCRITURA|
     SENTENCIAS_IF_ELSE DECLARACION|
     SENTENCIAS_IF_ELSE LECTURA|
     SENTENCIAS_IF_ELSE FOR|
     SENTENCIAS_IF_ELSE SWITCH|
     SENTENCIAS_IF_ELSE IF|
-    SENTENCIAS_IF_ELSE IF_ELSE
+    SENTENCIAS_IF_ELSE IF_ELSE|
+    SENTENCIAS_IF_ELSE LLAMADAMETODO
     
 ;
 LOQUE_SEA ::= 
     ENTERO|TEXTO|FLOTANTE|SI|SINO|PARA|MIENTRAS|DONDE|ENTONCES|FIN|LEER| ESCRIBIR|
     Espacio|Asignacion|Comparacion|Suma|Resta|Multiplicacion|Division|Cierre|
     Coma| Punto|A_Parentesis|C_Parentesis| MenorIgual|MayorIgual|
-    Identificador|Numero| ERROR| A | DosPuntos | CASO|INTERRUPTOR|DEFECTO|A_Llaves|C_Llaves
+    Identificador|Numero| ERROR| A | DosPuntos | CASO|INTERRUPTOR|DEFECTO|A_Llaves|C_Llaves|METODO|FUNCION|RETORNO
 
     LOQUE_SEA ENTERO|LOQUE_SEA TEXTO|LOQUE_SEA FLOTANTE|LOQUE_SEA SI|LOQUE_SEA SINO|LOQUE_SEA PARA|LOQUE_SEA MIENTRAS|LOQUE_SEA DONDE|LOQUE_SEA ENTONCES|LOQUE_SEA FIN|LOQUE_SEA LEER| LOQUE_SEA ESCRIBIR|
     LOQUE_SEA Espacio|LOQUE_SEA Asignacion|LOQUE_SEA Comparacion|LOQUE_SEA Suma|LOQUE_SEA Resta|LOQUE_SEA Multiplicacion|LOQUE_SEA Division|LOQUE_SEA Cierre|
     LOQUE_SEA Coma| LOQUE_SEA Punto|LOQUE_SEA A_Parentesis|LOQUE_SEA C_Parentesis|LOQUE_SEA MenorIgual|LOQUE_SEA MayorIgual|
     LOQUE_SEA Identificador|LOQUE_SEA Numero|LOQUE_SEA ERROR |LOQUE_SEA A | LOQUE_SEA DosPuntos | LOQUE_SEA CASO | LOQUE_SEA INTERRUPTOR|LOQUE_SEA DEFECTO|
-    LOQUE_SEA A_Llaves | LOQUE_SEA C_Llaves
+    LOQUE_SEA A_Llaves | LOQUE_SEA C_Llaves| LOQUE_SEA METODO | LOQUE_SEA FUNCION | LOQUE_SEA RETORNO
 ;
 
 WHILE ::=
@@ -148,4 +158,35 @@ CASES ::=
          CASO Comillas LOQUE_SEA Comillas DosPuntos SENTENCIAS_IF_ELSE|
          CASO Numero DosPuntos SENTENCIAS_IF_ELSE
 ;
+METODOS ::= 
+        METODO Identificador A_Parentesis C_Parentesis A_Llaves SENTENCIAS_IF_ELSE C_Llaves|
+        METODO Identificador A_Parentesis ATRIBUTOS C_Parentesis A_Llaves SENTENCIAS_IF_ELSE C_Llaves
+;
 
+ATRIBUTOS ::=
+        TIPOS Identificador Cierre ATRIBUTOS|
+        TIPOS Identificador
+;
+
+TIPOS ::= ENTERO | FLOTANTE | TEXTO
+;
+
+LLAMADAMETODO ::=
+        Identificador A_Parentesis C_Parentesis Cierre|
+        Identificador A_Parentesis PARAMETROS C_Parentesis Cierre
+;
+
+PARAMETROS ::=
+        VALORES Cierre PARAMETROS|
+        VALORES
+;
+
+FUNCTION ::= 
+        FUNCION TIPOS Identificador A_Parentesis C_Parentesis A_Llaves SENTENCIAS_IF_ELSE RETORNO Identificador Cierre C_Llaves|
+        FUNCION TIPOS Identificador A_Parentesis ATRIBUTOS C_Parentesis A_Llaves SENTENCIAS_IF_ELSE RETORNO Identificador Cierre C_Llaves
+;
+
+LLAMADAFUNCION ::= 
+            Identificador A_Parentesis C_Parentesis|
+            Identificador A_Parentesis PARAMETROS C_Parentesis
+;
